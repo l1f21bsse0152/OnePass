@@ -122,8 +122,7 @@ export const register = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Registration error:", error.message);
-
+console.error("Registration error details:", error);
     return res.status(500).json({
       success: false,
       message: "Unable to complete registration."
@@ -156,9 +155,9 @@ export const verifyRegistrationOTP = async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    const pending = await PendingRegistration.findOne({
-      email: normalizedEmail
-    });
+   const pending = await PendingRegistration.findOne({
+  email: normalizedEmail
+}).select("+passwordHash");
 
     if (!pending) {
       return res.status(404).json({

@@ -5,6 +5,8 @@ import morgan from "morgan";
 
 import authRoutes from "./routes/auth.routes.js";
 import walletRoutes from "./routes/wallet.routes.js";
+import facilityQRRoutes from "./routes/facility-qr.routes.js";
+import accessRoutes from "./routes/access.routes.js";
 
 const app = express();
 
@@ -34,5 +36,11 @@ app.use("/api/auth", authRoutes);
 
 // Wallet routes
 app.use("/api/wallet", walletRoutes);
+
+// Facility QR routes
+app.use("/api/facility-qr", facilityQRRoutes);
+
+// Facility access routes
+app.use("/api/access", accessRoutes);
 
 export default app;

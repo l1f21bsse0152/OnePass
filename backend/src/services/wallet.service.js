@@ -31,7 +31,9 @@ const normalizeIdempotencyKey = (key) => {
   const normalizedKey = key.trim();
 
   if (!normalizedKey || normalizedKey.length > 128) {
-    throw new WalletError("Idempotency key must be between 1 and 128 characters.");
+    throw new WalletError(
+      "Idempotency key must be between 1 and 128 characters."
+    );
   }
 
   return normalizedKey;
@@ -113,14 +115,16 @@ const expireBonusPointsInSession = async (wallet, session) => {
     }
 
     const balanceBefore =
-      wallet.purchasedPointsBalance + wallet.bonusPointsBalance;
+      wallet.purchasedPointsBalance +
+      wallet.bonusPointsBalance;
 
     wallet.bonusPointsBalance -= expiredPoints;
 
     await wallet.save({ session });
 
     const balanceAfter =
-      wallet.purchasedPointsBalance + wallet.bonusPointsBalance;
+      wallet.purchasedPointsBalance +
+      wallet.bonusPointsBalance;
 
     await Transaction.create(
       [
@@ -172,8 +176,6 @@ const findExistingCredit = async ({
   const expectedTransactionType =
     type === "bonus" ? "bonus" : "purchase";
 
-  // Older transactions may not contain pointType metadata.
-  // Preserve compatibility with those existing records.
   const storedPointType = existing.metadata?.pointType;
   const storedExpiry = existing.metadata?.expiresAt;
 
@@ -410,7 +412,17 @@ export const creditPoints = async ({
   });
 };
 
-export const debitPoints = async ({
+/**
+ * Deduct points using an existing MongoDB session.
+ *
+ * This function does NOT start or commit a transaction.
+ * The caller is responsible for managing the session.
+ *
+ * Facility access will use this function so that the wallet
+ * deduction and access record can be committed atomically.
+ */
+export const debitPointsInSession = async ({
+  session,
   travelerId,
   points,
   description = "Points redeemed.",
@@ -418,6 +430,13 @@ export const debitPoints = async ({
   referenceId = null,
   idempotencyKey = null
 }) => {
+  if (!session || !session.inTransaction()) {
+    throw new WalletError(
+      "An active MongoDB transaction session is required.",
+      500
+    );
+  }
+
   validatePoints(points);
 
   const normalizedKey =
@@ -426,189 +445,219 @@ export const debitPoints = async ({
   const normalizedReference =
     normalizeReferenceId(referenceId);
 
-  return runInTransaction(async (session) => {
-    const wallet = await getOrCreateWallet(travelerId, session);
+  const wallet = await getOrCreateWallet(travelerId, session);
 
-    if (wallet.status !== "active") {
-      throw new WalletError(
-        "Your wallet is currently frozen.",
-        403
-      );
-    }
+  if (wallet.status !== "active") {
+    throw new WalletError(
+      "Your wallet is currently frozen.",
+      403
+    );
+  }
 
-    await expireBonusPointsInSession(wallet, session);
+  await expireBonusPointsInSession(wallet, session);
 
-    const existing = await findExistingDebit({
-      idempotencyKey: normalizedKey,
+  const existing = await findExistingDebit({
+    idempotencyKey: normalizedKey,
+    wallet,
+    points,
+    source,
+    description,
+    referenceId: normalizedReference,
+    session
+  });
+
+  if (existing) {
+    return {
+      transaction: existing,
+      duplicate: true,
       wallet,
-      points,
-      source,
-      description,
-      referenceId: normalizedReference,
-      session
-    });
+      balanceAfter: existing.balanceAfter
+    };
+  }
 
-    if (existing) {
-      return {
-        transaction: existing,
-        duplicate: true
-      };
+  const balanceBefore =
+    wallet.purchasedPointsBalance +
+    wallet.bonusPointsBalance;
+
+  if (balanceBefore < points) {
+    throw new WalletError(
+      "Insufficient wallet balance.",
+      400
+    );
+  }
+
+  const now = new Date();
+
+  // Bonus points are consumed first, earliest expiry first.
+  const bonusLots = await WalletLot.find({
+    wallet: wallet._id,
+    type: "bonus",
+    status: "active",
+    remainingPoints: { $gt: 0 },
+    expiresAt: { $gt: now }
+  })
+    .sort({ expiresAt: 1, createdAt: 1 })
+    .session(session);
+
+  // Purchased points are consumed in FIFO order.
+  const purchasedLots = await WalletLot.find({
+    wallet: wallet._id,
+    type: "purchased",
+    status: "active",
+    remainingPoints: { $gt: 0 }
+  })
+    .sort({ createdAt: 1 })
+    .session(session);
+
+  // Verify that the lots match the wallet balances.
+  const bonusLotBalance = bonusLots.reduce(
+    (total, lot) => total + lot.remainingPoints,
+    0
+  );
+
+  const purchasedLotBalance = purchasedLots.reduce(
+    (total, lot) => total + lot.remainingPoints,
+    0
+  );
+
+  if (
+    bonusLotBalance !== wallet.bonusPointsBalance ||
+    purchasedLotBalance !== wallet.purchasedPointsBalance
+  ) {
+    throw new WalletError(
+      "Wallet balances do not match the remaining point lots. Please contact support.",
+      500
+    );
+  }
+
+  let remainingToDeduct = points;
+  let bonusDeducted = 0;
+  let purchasedDeducted = 0;
+
+  // Deduct bonus points first.
+  for (const lot of bonusLots) {
+    if (remainingToDeduct <= 0) {
+      break;
     }
 
-    const balanceBefore =
-      wallet.purchasedPointsBalance +
-      wallet.bonusPointsBalance;
-
-    if (balanceBefore < points) {
-      throw new WalletError(
-        "Insufficient wallet balance.",
-        400
-      );
-    }
-
-    const now = new Date();
-
-    // Load all currently spendable bonus lots.
-    // Earliest-expiring bonus points are consumed first.
-    const bonusLots = await WalletLot.find({
-      wallet: wallet._id,
-      type: "bonus",
-      status: "active",
-      remainingPoints: { $gt: 0 },
-      expiresAt: { $gt: now }
-    })
-      .sort({ expiresAt: 1, createdAt: 1 })
-      .session(session);
-
-    // Purchased lots are consumed in FIFO order.
-    const purchasedLots = await WalletLot.find({
-      wallet: wallet._id,
-      type: "purchased",
-      status: "active",
-      remainingPoints: { $gt: 0 }
-    })
-      .sort({ createdAt: 1 })
-      .session(session);
-
-    // Verify that database lots agree with wallet balances
-    // before changing either the lots or the wallet.
-    const bonusLotBalance = bonusLots.reduce(
-      (total, lot) => total + lot.remainingPoints,
-      0
+    const deduction = Math.min(
+      lot.remainingPoints,
+      remainingToDeduct
     );
 
-    const purchasedLotBalance = purchasedLots.reduce(
-      (total, lot) => total + lot.remainingPoints,
-      0
+    lot.remainingPoints -= deduction;
+    remainingToDeduct -= deduction;
+    bonusDeducted += deduction;
+
+    if (lot.remainingPoints === 0) {
+      lot.status = "depleted";
+    }
+
+    await lot.save({ session });
+  }
+
+  // Deduct purchased points after bonus points.
+  for (const lot of purchasedLots) {
+    if (remainingToDeduct <= 0) {
+      break;
+    }
+
+    const deduction = Math.min(
+      lot.remainingPoints,
+      remainingToDeduct
     );
 
-    if (
-      bonusLotBalance !== wallet.bonusPointsBalance ||
-      purchasedLotBalance !== wallet.purchasedPointsBalance
-    ) {
-      throw new WalletError(
-        "Wallet balances do not match the remaining point lots. Please contact support.",
-        500
-      );
+    lot.remainingPoints -= deduction;
+    remainingToDeduct -= deduction;
+    purchasedDeducted += deduction;
+
+    if (lot.remainingPoints === 0) {
+      lot.status = "depleted";
     }
 
-    let remainingToDeduct = points;
-    let bonusDeducted = 0;
-    let purchasedDeducted = 0;
+    await lot.save({ session });
+  }
 
-    // Deduct bonus points first.
-    for (const lot of bonusLots) {
-      if (remainingToDeduct <= 0) {
-        break;
-      }
+  if (remainingToDeduct > 0) {
+    throw new WalletError(
+      "Wallet point lots do not match the available balance.",
+      500
+    );
+  }
 
-      const deduction = Math.min(
-        lot.remainingPoints,
-        remainingToDeduct
-      );
+  if (
+    bonusDeducted + purchasedDeducted !== points ||
+    bonusDeducted > wallet.bonusPointsBalance ||
+    purchasedDeducted > wallet.purchasedPointsBalance
+  ) {
+    throw new WalletError(
+      "Wallet deduction failed its balance consistency check.",
+      500
+    );
+  }
 
-      lot.remainingPoints -= deduction;
-      remainingToDeduct -= deduction;
-      bonusDeducted += deduction;
+  wallet.bonusPointsBalance -= bonusDeducted;
+  wallet.purchasedPointsBalance -= purchasedDeducted;
 
-      if (lot.remainingPoints === 0) {
-        lot.status = "depleted";
-      }
+  await wallet.save({ session });
 
-      await lot.save({ session });
-    }
+  const balanceAfter =
+    wallet.purchasedPointsBalance +
+    wallet.bonusPointsBalance;
 
-    // Use purchased points only after bonus points are exhausted.
-    for (const lot of purchasedLots) {
-      if (remainingToDeduct <= 0) {
-        break;
-      }
+  const transaction = new Transaction({
+    wallet: wallet._id,
+    traveler: wallet.traveler,
+    type: "debit",
+    status: "completed",
+    points,
+    balanceBefore,
+    balanceAfter,
+    description,
+    source,
+    referenceId: normalizedReference,
+    idempotencyKey: normalizedKey
+  });
 
-      const deduction = Math.min(
-        lot.remainingPoints,
-        remainingToDeduct
-      );
+  await transaction.save({ session });
 
-      lot.remainingPoints -= deduction;
-      remainingToDeduct -= deduction;
-      purchasedDeducted += deduction;
+  return {
+    transaction,
+    balanceAfter,
+    duplicate: false,
+    wallet
+  };
+};
 
-      if (lot.remainingPoints === 0) {
-        lot.status = "depleted";
-      }
-
-      await lot.save({ session });
-    }
-
-    if (remainingToDeduct > 0) {
-      throw new WalletError(
-        "Wallet point lots do not match the available balance.",
-        500
-      );
-    }
-
-    if (
-      bonusDeducted + purchasedDeducted !== points ||
-      bonusDeducted > wallet.bonusPointsBalance ||
-      purchasedDeducted > wallet.purchasedPointsBalance
-    ) {
-      throw new WalletError(
-        "Wallet deduction failed its balance consistency check.",
-        500
-      );
-    }
-
-    // Update wallet balances using the actual amounts
-    // deducted from each type of point lot.
-    wallet.bonusPointsBalance -= bonusDeducted;
-    wallet.purchasedPointsBalance -= purchasedDeducted;
-
-    await wallet.save({ session });
-
-    const balanceAfter =
-      wallet.purchasedPointsBalance +
-      wallet.bonusPointsBalance;
-
-    const transaction = new Transaction({
-      wallet: wallet._id,
-      traveler: wallet.traveler,
-      type: "debit",
-      status: "completed",
+/**
+ * Normal wallet deduction.
+ *
+ * Keeps the existing API behavior while reusing the
+ * session-based deduction logic.
+ */
+export const debitPoints = async ({
+  travelerId,
+  points,
+  description = "Points redeemed.",
+  source = "facility_access",
+  referenceId = null,
+  idempotencyKey = null
+}) => {
+  return runInTransaction(async (session) => {
+    const result = await debitPointsInSession({
+      session,
+      travelerId,
       points,
-      balanceBefore,
-      balanceAfter,
       description,
       source,
-      referenceId: normalizedReference,
-      idempotencyKey: normalizedKey
+      referenceId,
+      idempotencyKey
     });
-
-    await transaction.save({ session });
 
     return {
-      transaction,
-      balanceAfter,
-      duplicate: false
+      transaction: result.transaction,
+      balanceAfter: result.balanceAfter,
+      duplicate: result.duplicate
     };
   });
 };
