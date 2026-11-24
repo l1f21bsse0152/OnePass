@@ -2,6 +2,7 @@
 import React, {
   createContext,
   useContext,
+  useCallback,
   useMemo,
   useState,
   ReactNode,
@@ -26,13 +27,11 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
   const theme = isDark ? darkTheme : lightTheme;
 
-  const toggleTheme = () => {
-    setIsDark((current) => !current);
-  };
+  const toggleTheme = useCallback(() => setIsDark((current) => !current), []);
 
   const value = useMemo(
     () => ({
@@ -40,7 +39,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       theme,
       toggleTheme,
     }),
-    [isDark]
+    [isDark, toggleTheme]
   );
 
   return (
