@@ -23,6 +23,8 @@ const transactionSchema = new mongoose.Schema(
         "purchase",
         "bonus",
         "debit",
+        "pass_debit",
+        "package_access",
         "refund",
         "admin_credit",
         "adjustment"
@@ -44,7 +46,7 @@ const transactionSchema = new mongoose.Schema(
     points: {
       type: Number,
       required: true,
-      min: 1
+      min: 0
     },
 
     balanceBefore: {
@@ -77,9 +79,29 @@ const transactionSchema = new mongoose.Schema(
         "admin",
         "admin_credit",
         "system",
+        "onepass_pass",
+        "facility_package",
         "other"
       ],
       default: "system"
+    },
+
+    balanceScope: {
+      type: String,
+      enum: ["wallet", "onepass_pass", "facility_package"],
+      default: "wallet"
+    },
+
+    onePassSubscription: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "OnePassSubscription",
+      default: null
+    },
+
+    facilityPackageSubscription: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FacilityPackageSubscription",
+      default: null
     },
 
     referenceId: {

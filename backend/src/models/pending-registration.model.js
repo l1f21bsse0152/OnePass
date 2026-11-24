@@ -25,6 +25,16 @@ const pendingRegistrationSchema = new mongoose.Schema(
       select: false
     },
 
+    role: {
+      type: String,
+      enum: ["traveler", "facility", "admin"],
+      default: "traveler"
+    },
+
+    googleSub: {
+      type: String
+    },
+
     expiresAt: {
       type: Date,
       required: true

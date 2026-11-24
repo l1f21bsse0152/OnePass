@@ -27,6 +27,8 @@ dist/
 build/
 **/dist/
 **/build/
+uploads/
+**/uploads/
 
 # Editor and operating system files
 .vscode/

@@ -106,4 +106,68 @@ export const sendPasswordResetOTP = async (email, otp) => {
         console.error("Password reset email failed:", error.message);
         throw new Error("Failed to send password reset OTP email.");
     }
+
+};
+
+export const sendPasswordChangeOTP = async (email, otp) => {
+    try {
+        const info = await transporter.sendMail({
+            from: `"OnePass" <${process.env.SMTP_USER}>`,
+            to: email,
+            subject: "OnePass - Password Change Verification",
+
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 25px;">
+                    <h2>Password Change Verification</h2>
+                    <p>Use this code to verify your request to change your OnePass password:</p>
+
+                    <h1 style="letter-spacing: 8px; color: #2563eb;">
+                        ${otp}
+                    </h1>
+
+                    <p>This OTP is valid for 10 minutes.</p>
+                    <p>If you did not request this change, secure your account and contact OnePass support.</p>
+
+                    <br/>
+                    <p>Regards,<br/>OnePass Team</p>
+                </div>
+            `,
+        });
+
+        console.log("Password change OTP email sent:", info.messageId);
+
+        return {
+            success: true,
+            messageId: info.messageId,
+        };
+    } catch (error) {
+        console.error("Password change OTP email failed:", error.message);
+        throw new Error("Failed to send password change OTP email.");
+    }
+};
+
+export const sendAdminEmailChangeOTP = async (email, otp) => {
+    try {
+        const info = await transporter.sendMail({
+            from: `"OnePass" <${process.env.SMTP_USER}>`,
+            to: email,
+            subject: "OnePass - Admin Email Change Verification",
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 25px;">
+                    <h2>Verify your new Admin email</h2>
+                    <p>Use this code to confirm your new OnePass Admin login email:</p>
+                    <h1 style="letter-spacing: 8px; color: #2563eb;">${otp}</h1>
+                    <p>This code is valid for 10 minutes. If you did not request this change, ignore this email.</p>
+                    <br/>
+                    <p>Regards,<br/>OnePass Team</p>
+                </div>
+            `,
+        });
+
+        console.log("Admin email change OTP email sent:", info.messageId);
+        return { success: true, messageId: info.messageId };
+    } catch (error) {
+        console.error("Admin email change OTP email failed:", error.message);
+        throw new Error("Failed to send Admin email change verification code.");
+    }
 };

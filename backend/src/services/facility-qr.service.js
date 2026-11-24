@@ -52,9 +52,23 @@ export const generateFacilityQR = async ({
         );
       }
 
+      if (facility.isTestData) {
+        throw new FacilityQRError(
+          "Test facilities cannot generate access QR codes.",
+          403
+        );
+      }
+
       if (facility.status !== "active") {
         throw new FacilityQRError(
           "Only active facilities can generate QR codes.",
+          403
+        );
+      }
+
+      if (facility.accessEnabled === false) {
+        throw new FacilityQRError(
+          "Directory listings cannot generate access QR codes.",
           403
         );
       }
