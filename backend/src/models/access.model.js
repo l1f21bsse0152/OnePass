@@ -39,11 +39,41 @@ const accessSchema = new mongoose.Schema(
     pointsCharged: {
       type: Number,
       required: true,
+      min: 0,
+      validate: {
+        validator: (value) =>
+          Number.isSafeInteger(value) && value >= 0,
+        message: "Points charged must be a non-negative whole number."
+      }
+    },
+
+    hoursUsed: {
+      type: Number,
+      required: true,
       min: 1,
+      max: 24,
       validate: {
         validator: Number.isSafeInteger,
-        message: "Points charged must be a positive whole number."
+        message: "Hours used must be a whole number between 1 and 24."
       }
+    },
+
+    accessMethod: {
+      type: String,
+      enum: ["wallet_points", "onepass_pass", "facility_package"],
+      required: true
+    },
+
+    onePassSubscription: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "OnePassSubscription",
+      default: null
+    },
+
+    facilityPackageSubscription: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "FacilityPackageSubscription",
+      default: null
     },
 
     // Prevent duplicate processing of the same access request.

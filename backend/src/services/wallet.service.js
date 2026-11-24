@@ -63,7 +63,7 @@ const runInTransaction = async (callback) => {
 
 const getOrCreateWallet = async (travelerId, session) => {
   if (!mongoose.isValidObjectId(travelerId)) {
-    throw new WalletError("Invalid traveler ID.", 400);
+    throw new WalletError("Invalid user ID.", 400);
   }
 
   let wallet = await Wallet.findOne({
@@ -667,7 +667,7 @@ export const getTransactionHistory = async (
   { page = 1, limit = 20 } = {}
 ) => {
   if (!mongoose.isValidObjectId(travelerId)) {
-    throw new WalletError("Invalid traveler ID.", 400);
+    throw new WalletError("Invalid user ID.", 400);
   }
 
   const requestedPage = Number(page);

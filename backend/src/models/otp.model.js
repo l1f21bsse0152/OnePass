@@ -34,7 +34,7 @@ const otpSchema = new mongoose.Schema(
 
     purpose: {
       type: String,
-      enum: ["registration", "password-reset"],
+      enum: ["registration", "password-reset", "password-change", "email-change"],
       required: true
     }
   },

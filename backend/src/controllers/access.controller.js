@@ -2,6 +2,7 @@
 import {
   previewFacilityQR,
   confirmFacilityAccess,
+  getTravelerAccessHistory,
   AccessError
 } from "../services/access.service.js";
 
@@ -72,7 +73,13 @@ export const scanFacility = async (req, res) => {
  */
 export const confirmAccess = async (req, res) => {
   try {
-    const { token } = req.body;
+    const {
+      token,
+      accessMethod,
+      hours,
+      onePassSubscriptionId,
+      facilityPackageSubscriptionId
+    } = req.body;
     const travelerId = req.user?.id;
     const idempotencyKey = req.headers["idempotency-key"];
 
@@ -100,7 +107,11 @@ export const confirmAccess = async (req, res) => {
     const result = await confirmFacilityAccess({
       travelerId,
       token,
-      idempotencyKey
+      idempotencyKey,
+      accessMethod,
+      hours,
+      onePassSubscriptionId,
+      facilityPackageSubscriptionId
     });
 
     return res.status(200).json({
@@ -131,6 +142,53 @@ export const confirmAccess = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Unable to confirm facility access."
+    });
+  }
+};
+
+/**
+ * GET /api/access/history
+ *
+ * Retrieves the logged-in traveler's past facility check-ins.
+ */
+export const getMyAccessHistory = async (req, res) => {
+  try {
+    const travelerId = req.user?.id;
+
+    if (!travelerId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required."
+      });
+    }
+
+    const result = await getTravelerAccessHistory(
+      travelerId,
+      {
+        page: req.query.page,
+        limit: req.query.limit
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Access history retrieved successfully.",
+      data: result
+    });
+
+  } catch (error) {
+    console.error("Access history retrieval error:", error);
+
+    if (error instanceof AccessError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to retrieve access history."
     });
   }
 };

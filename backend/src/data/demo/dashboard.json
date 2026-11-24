@@ -1,0 +1,81 @@
+{
+  "adminOverview": {
+    "overview": {
+      "users": 13,
+      "facilities": 5,
+      "activeFacilities": 3,
+      "accessEnabledFacilities": 5,
+      "activeQRCodes": 3,
+      "totalAccesses": 8,
+      "todayAccesses": 2,
+      "totalTransactions": 8,
+      "totalTransactions": 8,
+      "completedTransactions": 7,
+      "completedPoints": 3425,
+      "activeOnePassSubscriptions": 16,
+      "activeFacilityPackages": 9
+    },
+    "usersByRole": {
+      "traveler": 10,
+      "facility": 2,
+      "admin": 1
+    },
+    "facilitiesByStatus": {
+      "pending": 1,
+      "active": 3,
+      "suspended": 1,
+      "inactive": 0
+    },
+    "activity": [
+      { "date": "2026-11-18", "checkIns": 1 },
+      { "date": "2026-11-19", "checkIns": 1 },
+      { "date": "2026-11-20", "checkIns": 1 },
+      { "date": "2026-11-21", "checkIns": 1 },
+      { "date": "2026-11-22", "checkIns": 1 },
+      { "date": "2026-11-23", "checkIns": 1 },
+      { "date": "2026-11-24", "checkIns": 2 }
+    ]
+  },
+  "users": [
+    { "_id": "demo-user-001", "fullName": "Avery Carter", "email": "avery@example.test", "role": "traveler", "city": "Lahore", "isEmailVerified": true, "lastLoginDeviceType": "mobile", "createdAt": "2026-10-12T08:30:00.000Z" },
+    { "_id": "demo-user-002", "fullName": "Rayan Malik", "email": "rayan@example.test", "role": "traveler", "city": "Karachi", "isEmailVerified": true, "lastLoginDeviceType": "mobile", "createdAt": "2026-10-18T10:15:00.000Z" },
+    { "_id": "demo-user-003", "fullName": "Sana Noor", "email": "sana@example.test", "role": "traveler", "city": "Islamabad", "isEmailVerified": true, "lastLoginDeviceType": "mobile", "createdAt": "2026-10-21T11:45:00.000Z" },
+    { "_id": "demo-user-004", "fullName": "Haris Shah", "email": "haris@example.test", "role": "traveler", "city": "Lahore", "isEmailVerified": false, "lastLoginDeviceType": "unknown", "createdAt": "2026-10-23T09:10:00.000Z" },
+    { "_id": "demo-user-005", "fullName": "Mina Raza", "email": "mina@example.test", "role": "traveler", "city": "Rawalpindi", "isEmailVerified": true, "lastLoginDeviceType": "mobile", "createdAt": "2026-10-25T13:20:00.000Z" },
+    { "_id": "demo-user-006", "fullName": "Zain Ahmed", "email": "zain@example.test", "role": "traveler", "city": "Karachi", "isEmailVerified": true, "lastLoginDeviceType": "mobile", "createdAt": "2026-10-27T14:05:00.000Z" },
+    { "_id": "demo-user-007", "fullName": "Noor Siddiqui", "email": "noor@example.test", "role": "traveler", "city": "Lahore", "isEmailVerified": true, "lastLoginDeviceType": "mobile", "createdAt": "2026-10-29T07:50:00.000Z" },
+    { "_id": "demo-user-008", "fullName": "Samir Khan", "email": "samir@example.test", "role": "traveler", "city": "Islamabad", "isEmailVerified": true, "lastLoginDeviceType": "mobile", "createdAt": "2026-11-01T12:35:00.000Z" },
+    { "_id": "demo-user-009", "fullName": "Elena James", "email": "elena@example.test", "role": "traveler", "city": "Karachi", "isEmailVerified": true, "lastLoginDeviceType": "mobile", "createdAt": "2026-11-03T08:05:00.000Z" },
+    { "_id": "demo-user-010", "fullName": "Ibrahim Ali", "email": "ibrahim@example.test", "role": "traveler", "city": "Lahore", "isEmailVerified": true, "lastLoginDeviceType": "mobile", "createdAt": "2026-11-05T16:30:00.000Z" },
+    { "_id": "demo-facility-user-001", "fullName": "Jordan Lee", "email": "jordan@example.test", "role": "facility", "city": "Lahore", "isEmailVerified": true, "lastLoginDeviceType": "pc/laptop", "createdAt": "2026-09-10T09:00:00.000Z" },
+    { "_id": "demo-facility-user-002", "fullName": "Casey Morgan", "email": "casey@example.test", "role": "facility", "city": "Karachi", "isEmailVerified": true, "lastLoginDeviceType": "pc/laptop", "createdAt": "2026-09-14T09:00:00.000Z" },
+    { "_id": "demo-admin-001", "fullName": "Demo Operations Admin", "email": "admin@example.test", "role": "admin", "city": "Lahore", "isEmailVerified": true, "lastLoginDeviceType": "pc/laptop", "createdAt": "2026-08-01T09:00:00.000Z" }
+  ],
+  "facilities": [
+    { "_id": "demo-facility-001", "name": "Northside Fitness Club", "category": "gym", "city": "Lahore", "address": "18 Garden Avenue", "description": "Strength and group fitness studio.", "status": "active", "accessEnabled": true, "pointsPerVisit": 120, "pointsPerHour": 60, "capacityLimit": 80, "currentOccupancy": 34, "amenities": ["Showers", "Lockers", "Group classes"], "photos": [], "latitude": 31.5204, "longitude": 74.3587, "timeZone": "Asia/Karachi", "operatingHours": [], "holidayClosures": [], "acceptedAccessMethods": ["wallet_points", "onepass_pass"], "owner": { "fullName": "Jordan Lee", "email": "jordan@example.test" }, "activeQr": { "id": "demo-qr-001", "createdAt": "2026-11-01T09:00:00.000Z" }, "createdAt": "2026-09-16T08:00:00.000Z", "isTestData": false },
+    { "_id": "demo-facility-002", "name": "Central Reading Room", "category": "library", "city": "Lahore", "address": "42 Civic Square", "description": "Quiet study spaces and reading rooms.", "status": "active", "accessEnabled": true, "pointsPerVisit": 45, "pointsPerHour": 20, "capacityLimit": 120, "currentOccupancy": 57, "amenities": ["Wi-Fi", "Study rooms"], "photos": [], "timeZone": "Asia/Karachi", "operatingHours": [], "holidayClosures": [], "acceptedAccessMethods": ["wallet_points", "onepass_pass", "facility_package"], "owner": { "fullName": "Jordan Lee", "email": "jordan@example.test" }, "activeQr": { "id": "demo-qr-002", "createdAt": "2026-11-03T10:00:00.000Z" }, "createdAt": "2026-09-18T08:00:00.000Z", "isTestData": false },
+    { "_id": "demo-facility-003", "name": "Bluewater Community Pool", "category": "pool", "city": "Karachi", "address": "7 Seaview Road", "description": "Indoor pool with family swim sessions.", "status": "pending", "accessEnabled": true, "pointsPerVisit": 90, "pointsPerHour": 45, "capacityLimit": 45, "currentOccupancy": 0, "amenities": ["Changing rooms", "Family sessions"], "photos": [], "timeZone": "Asia/Karachi", "operatingHours": [], "holidayClosures": [], "acceptedAccessMethods": ["wallet_points", "facility_package"], "owner": { "fullName": "Casey Morgan", "email": "casey@example.test" }, "activeQr": null, "createdAt": "2026-11-22T08:00:00.000Z", "isTestData": false },
+    { "_id": "demo-facility-004", "name": "Riverside Yoga Studio", "category": "fitness", "city": "Islamabad", "address": "5 River Walk", "description": "Small-group yoga and mobility sessions.", "status": "active", "accessEnabled": true, "pointsPerVisit": 75, "pointsPerHour": 40, "capacityLimit": 28, "currentOccupancy": 11, "amenities": ["Mats", "Changing rooms"], "photos": [], "timeZone": "Asia/Karachi", "operatingHours": [], "holidayClosures": [], "acceptedAccessMethods": ["wallet_points"], "owner": { "fullName": "Casey Morgan", "email": "casey@example.test" }, "activeQr": { "id": "demo-qr-004", "createdAt": "2026-10-28T07:30:00.000Z" }, "createdAt": "2026-08-20T08:00:00.000Z", "isTestData": false },
+    { "_id": "demo-facility-005", "name": "Maple Lane Sports Hall", "category": "sports", "city": "Rawalpindi", "address": "11 Maple Lane", "description": "Indoor courts for community sports.", "status": "suspended", "accessEnabled": true, "pointsPerVisit": 100, "pointsPerHour": 50, "capacityLimit": 60, "currentOccupancy": 0, "amenities": ["Indoor courts"], "photos": [], "timeZone": "Asia/Karachi", "operatingHours": [], "holidayClosures": [], "acceptedAccessMethods": ["wallet_points", "onepass_pass"], "owner": { "fullName": "Jordan Lee", "email": "jordan@example.test" }, "activeQr": null, "createdAt": "2026-07-14T08:00:00.000Z", "isTestData": false }
+  ],
+  "transactions": [
+    { "_id": "demo-txn-001", "traveler": { "fullName": "Avery Carter", "email": "avery@example.test" }, "type": "purchase", "status": "completed", "points": 1000, "description": "Wallet points purchase", "source": "wallet", "createdAt": "2026-11-24T03:30:00.000Z" },
+    { "_id": "demo-txn-002", "traveler": { "fullName": "Rayan Malik", "email": "rayan@example.test" }, "type": "debit", "status": "completed", "points": -120, "description": "Northside Fitness Club visit", "source": "facility_access", "createdAt": "2026-11-24T02:45:00.000Z" },
+    { "_id": "demo-txn-003", "traveler": { "fullName": "Sana Noor", "email": "sana@example.test" }, "type": "bonus", "status": "completed", "points": 150, "description": "Welcome bonus", "source": "promotion", "createdAt": "2026-11-23T15:15:00.000Z" },
+    { "_id": "demo-txn-004", "traveler": { "fullName": "Haris Shah", "email": "haris@example.test" }, "type": "pass_debit", "status": "completed", "points": -45, "description": "Central Reading Room visit", "source": "onepass_pass", "createdAt": "2026-11-23T13:20:00.000Z" },
+    { "_id": "demo-txn-005", "traveler": { "fullName": "Mina Raza", "email": "mina@example.test" }, "type": "purchase", "status": "completed", "points": 2500, "description": "Wallet points purchase", "source": "wallet", "createdAt": "2026-11-22T10:05:00.000Z" },
+    { "_id": "demo-txn-006", "traveler": { "fullName": "Zain Ahmed", "email": "zain@example.test" }, "type": "package_access", "status": "completed", "points": -90, "description": "Bluewater Community Pool package visit", "source": "facility_package", "createdAt": "2026-11-21T09:50:00.000Z" },
+    { "_id": "demo-txn-007", "traveler": { "fullName": "Noor Siddiqui", "email": "noor@example.test" }, "type": "adjustment", "status": "completed", "points": 30, "description": "Support adjustment", "source": "admin_adjustment", "createdAt": "2026-11-20T12:10:00.000Z" },
+    { "_id": "demo-txn-008", "traveler": { "fullName": "Samir Khan", "email": "samir@example.test" }, "type": "debit", "status": "failed", "points": -75, "description": "Riverside Yoga Studio visit", "source": "facility_access", "createdAt": "2026-11-19T08:30:00.000Z" }
+  ],
+  "accesses": [
+    { "_id": "demo-access-001", "traveler": { "fullName": "Rayan Malik", "email": "rayan@example.test" }, "facility": { "_id": "demo-facility-001", "name": "Northside Fitness Club", "city": "Lahore" }, "pointsCharged": 120, "hoursUsed": 2, "accessMethod": "wallet_points", "accessedAt": "2026-11-24T02:45:00.000Z" },
+    { "_id": "demo-access-002", "traveler": { "fullName": "Haris Shah", "email": "haris@example.test" }, "facility": { "_id": "demo-facility-002", "name": "Central Reading Room", "city": "Lahore" }, "pointsCharged": 45, "hoursUsed": 3, "accessMethod": "onepass_pass", "accessedAt": "2026-11-24T01:20:00.000Z" },
+    { "_id": "demo-access-003", "traveler": { "fullName": "Zain Ahmed", "email": "zain@example.test" }, "facility": { "_id": "demo-facility-001", "name": "Northside Fitness Club", "city": "Lahore" }, "pointsCharged": 120, "hoursUsed": 1, "accessMethod": "wallet_points", "accessedAt": "2026-11-23T16:10:00.000Z" },
+    { "_id": "demo-access-004", "traveler": { "fullName": "Mina Raza", "email": "mina@example.test" }, "facility": { "_id": "demo-facility-004", "name": "Riverside Yoga Studio", "city": "Islamabad" }, "pointsCharged": 75, "hoursUsed": 1, "accessMethod": "wallet_points", "accessedAt": "2026-11-23T13:40:00.000Z" },
+    { "_id": "demo-access-005", "traveler": { "fullName": "Avery Carter", "email": "avery@example.test" }, "facility": { "_id": "demo-facility-002", "name": "Central Reading Room", "city": "Lahore" }, "pointsCharged": 0, "hoursUsed": 2, "accessMethod": "onepass_pass", "accessedAt": "2026-11-22T11:15:00.000Z" },
+    { "_id": "demo-access-006", "traveler": { "fullName": "Sana Noor", "email": "sana@example.test" }, "facility": { "_id": "demo-facility-001", "name": "Northside Fitness Club", "city": "Lahore" }, "pointsCharged": 120, "hoursUsed": 1, "accessMethod": "wallet_points", "accessedAt": "2026-11-21T07:55:00.000Z" },
+    { "_id": "demo-access-007", "traveler": { "fullName": "Noor Siddiqui", "email": "noor@example.test" }, "facility": { "_id": "demo-facility-004", "name": "Riverside Yoga Studio", "city": "Islamabad" }, "pointsCharged": 75, "hoursUsed": 1, "accessMethod": "wallet_points", "accessedAt": "2026-11-20T14:25:00.000Z" },
+    { "_id": "demo-access-008", "traveler": { "fullName": "Samir Khan", "email": "samir@example.test" }, "facility": { "_id": "demo-facility-002", "name": "Central Reading Room", "city": "Lahore" }, "pointsCharged": 45, "hoursUsed": 2, "accessMethod": "facility_package", "accessedAt": "2026-11-19T09:40:00.000Z" }
+  ]
+}
